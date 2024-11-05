@@ -94,40 +94,121 @@ describe("Given I am connected as an employee", () => {
       expect(handleClickIconEye).toHaveBeenCalled();
       expect($.fn.modal).toHaveBeenCalled();
     });
-  });
 
-  describe("When I navigate to Bills page", () => {
-    test("fetches bills from mock API GET", async () => {
-      const getSpy = jest.spyOn(mockStore, "bills");
-      const bills = await mockStore.bills().list();
-      expect(getSpy).toHaveBeenCalledTimes(1);
-      expect(bills.length).toBe(4);
+    test("Then, Loading page should be rendered", () => {
+      document.body.innerHTML = BillsUI({ loading: true });
+      expect(screen.getAllByText("Loading...")).toBeTruthy();
     });
 
-    test("fetches bills from an API and fails with 404 message error", async () => {
-      mockStore.bills.mockImplementationOnce(() => {
-        return {
-          list: () => {
-            return Promise.reject(new Error("Erreur 404"));
-          },
-        };
-      });
-      document.body.innerHTML = BillsUI({ error: "Erreur 404" });
-      const message = screen.getByText(/Erreur 404/);
-      expect(message).toBeTruthy();
+    test("Then, Error page should be rendered", () => {
+      document.body.innerHTML = BillsUI({ error: "Une erreur est survenue" });
+      expect(screen.getAllByText("Erreur")).toBeTruthy();
     });
 
-    test("fetches messages from an API and fails with 500 message error", async () => {
-      mockStore.bills.mockImplementationOnce(() => {
-        return {
-          list: () => {
-            return Promise.reject(new Error("Erreur 500"));
-          },
-        };
+    describe("When I click on eye icon", () => {
+      test("Then, modal should display image in correct format", () => {
+        document.body.innerHTML = `
+          ${BillsUI({ data: bills })}
+          <div class="modal fade" id="modaleFile" data-testid="modaleFile">
+          </div>`;
+
+        const billsContainer = new Bills({
+          document,
+          onNavigate,
+          store: null,
+          localStorage: window.localStorage,
+        });
+
+        const iconEye = screen.getAllByTestId("icon-eye")[0];
+        const handleClickIconEye = jest.fn(billsContainer.handleClickIconEye);
+        iconEye.addEventListener("click", () => handleClickIconEye(iconEye));
+
+        userEvent.click(iconEye);
+        expect(screen.getByTestId("modaleFile")).toBeTruthy();
       });
-      document.body.innerHTML = BillsUI({ error: "Erreur 500" });
-      const message = screen.getByText(/Erreur 500/);
-      expect(message).toBeTruthy();
+    });
+
+    // Test d'intégration GET
+    describe("Given I am a user connected as Employee", () => {
+      describe("When I navigate to Bills", () => {
+        test("fetches bills from mock API GET", async () => {
+          // Nettoyer le DOM avant le test
+          document.body.innerHTML = "";
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ type: "Employee", email: "a@a" })
+          );
+          const root = document.createElement("div");
+          root.setAttribute("id", "root");
+          document.body.append(root);
+          router();
+          window.onNavigate(ROUTES_PATH.Bills);
+
+          await waitFor(() => screen.getByText("Mes notes de frais"));
+
+          // Vérifier les éléments spécifiques à la page Bills
+          const billsTable = await screen.getByTestId("tbody");
+          expect(billsTable).toBeTruthy();
+
+          // Vérifier le nombre de lignes dans le tableau (4 factures + 1 en-tête)
+          const rows = screen.getAllByRole("row");
+          expect(rows.length).toBe(5);
+
+          // Vérifier les icônes d'action
+          const iconEyes = screen.getAllByTestId("icon-eye");
+          expect(iconEyes.length).toBe(4);
+        });
+
+        describe("When an error occurs on API", () => {
+          beforeEach(() => {
+            jest.spyOn(mockStore, "bills");
+            Object.defineProperty(window, "localStorage", {
+              value: localStorageMock,
+            });
+            window.localStorage.setItem(
+              "user",
+              JSON.stringify({
+                type: "Employee",
+                email: "a@a",
+              })
+            );
+            document.body.innerHTML = ""; // Nettoyer le DOM
+            const root = document.createElement("div");
+            root.setAttribute("id", "root");
+            document.body.appendChild(root);
+            router();
+          });
+
+          test("fetches bills from an API and fails with 404 message error", async () => {
+            mockStore.bills.mockImplementationOnce(() => {
+              return {
+                list: () => {
+                  return Promise.reject(new Error("Erreur 404"));
+                },
+              };
+            });
+            window.onNavigate(ROUTES_PATH.Bills);
+            await new Promise(process.nextTick);
+            const message = await screen.getByText(/Erreur 404/);
+            expect(message).toBeTruthy();
+          });
+
+          test("fetches messages from an API and fails with 500 message error", async () => {
+            mockStore.bills.mockImplementationOnce(() => {
+              return {
+                list: () => {
+                  return Promise.reject(new Error("Erreur 500"));
+                },
+              };
+            });
+            window.onNavigate(ROUTES_PATH.Bills);
+            await new Promise(process.nextTick);
+            const message = await screen.getByText(/Erreur 500/);
+            expect(message).toBeTruthy();
+          });
+        });
+      });
     });
   });
 });
