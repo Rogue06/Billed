@@ -13,6 +13,7 @@ import { localStorageMock } from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store";
 import router from "../app/Router.js";
 import Logout from "../containers/Logout.js";
+import DashboardUI from "../views/DashboardUI.js";
 
 jest.mock("../app/store", () => mockStore);
 
@@ -209,7 +210,45 @@ describe("Given I am connected as an employee", () => {
         });
       });
     });
-
     // Test du bouton disconnect
+    describe("Given I am connected", () => {
+      describe("When I click on disconnect button", () => {
+        test("Then, I should be sent to login page", () => {
+          const onNavigate = (pathname) => {
+            document.body.innerHTML = ROUTES({ pathname });
+          };
+          Object.defineProperty(window, "localStorage", {
+            value: localStorageMock,
+          });
+          window.localStorage.setItem(
+            "user",
+            JSON.stringify({
+              type: "Employee",
+            })
+          );
+
+          // On crée le DOM avec le layout vertical qui contient le bouton de déconnexion
+          document.body.innerHTML = `
+            <div id="root">
+              ${BillsUI({ data: bills })}
+              <div class="vertical-navbar" style="height: 120vh;">
+                <div id="layout-disconnect" data-testid="layout-disconnect">
+                  <svg></svg>
+                </div>
+              </div>
+            </div>
+          `;
+
+          const logout = new Logout({ document, onNavigate, localStorage });
+          const handleClick = jest.fn(logout.handleClick);
+
+          const disco = screen.getByTestId("layout-disconnect");
+          disco.addEventListener("click", handleClick);
+          userEvent.click(disco);
+          expect(handleClick).toHaveBeenCalled();
+          expect(screen.getByText("Administration")).toBeTruthy();
+        });
+      });
+    });
   });
 });
