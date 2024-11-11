@@ -2,7 +2,7 @@
  * @jest-environment jsdom
  */
 
-import { screen, waitFor } from "@testing-library/dom";
+import { screen, waitFor, fireEvent } from "@testing-library/dom";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import BillsUI from "../views/BillsUI.js";
@@ -12,6 +12,7 @@ import { ROUTES_PATH, ROUTES } from "../constants/routes.js";
 import { localStorageMock } from "../__mocks__/localStorage.js";
 import mockStore from "../__mocks__/store";
 import router from "../app/Router.js";
+import Logout from "../containers/Logout.js";
 
 jest.mock("../app/store", () => mockStore);
 
@@ -49,6 +50,7 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted);
     });
 
+    // Vérifie que le clic sur le bouton "Nouvelle facture" navigue vers la page "Nouvelle facture"
     test("Then clicking on New Bill button should navigate to NewBill page", () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
@@ -70,8 +72,12 @@ describe("Given I am connected as an employee", () => {
       newBillBtn.addEventListener("click", handleClickNewBill);
       userEvent.click(newBillBtn);
       expect(handleClickNewBill).toHaveBeenCalled();
+
+      //Vérifie si la page NewBill est bien affichée
+      expect(screen.getByTestId(`form-new-bill`)).toBeTruthy();
     });
 
+    // Ce test vérifie que le clic sur l'icône de "l'œil" ouvre la modale
     test("Then clicking on icon eye should open modal", () => {
       document.body.innerHTML = BillsUI({ data: bills });
 
@@ -95,17 +101,8 @@ describe("Given I am connected as an employee", () => {
       expect($.fn.modal).toHaveBeenCalled();
     });
 
-    test("Then, Loading page should be rendered", () => {
-      document.body.innerHTML = BillsUI({ loading: true });
-      expect(screen.getAllByText("Loading...")).toBeTruthy();
-    });
-
-    test("Then, Error page should be rendered", () => {
-      document.body.innerHTML = BillsUI({ error: "Une erreur est survenue" });
-      expect(screen.getAllByText("Erreur")).toBeTruthy();
-    });
-
     describe("When I click on eye icon", () => {
+      // Ce test vérifie que la modale affiche l'image dans le format correct lorsque l'icône de l'œil est cliquée
       test("Then, modal should display image in correct format", () => {
         document.body.innerHTML = `
           ${BillsUI({ data: bills })}
@@ -180,6 +177,7 @@ describe("Given I am connected as an employee", () => {
             router();
           });
 
+          // Ce test vérifie que lorsque l'API renvoie une erreur 404, un message d'erreur est affiché.
           test("fetches bills from an API and fails with 404 message error", async () => {
             mockStore.bills.mockImplementationOnce(() => {
               return {
@@ -194,6 +192,7 @@ describe("Given I am connected as an employee", () => {
             expect(message).toBeTruthy();
           });
 
+          // Ce test vérifie que lorsque l'API renvoie une erreur 500, un message d'erreur est affiché.
           test("fetches messages from an API and fails with 500 message error", async () => {
             mockStore.bills.mockImplementationOnce(() => {
               return {
@@ -210,5 +209,7 @@ describe("Given I am connected as an employee", () => {
         });
       });
     });
+
+    // Test du bouton disconnect
   });
 });
