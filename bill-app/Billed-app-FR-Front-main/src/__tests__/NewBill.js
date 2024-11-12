@@ -152,6 +152,11 @@ describe("Given I am connected as an employee", () => {
         fireEvent.submit(formNewBill);
 
         expect(handleSubmit).toHaveBeenCalled();
+
+        // Vérification de la redirection vers Bills
+        await waitFor(() => {
+          expect(screen.getByText("Mes notes de frais")).toBeTruthy();
+        });
       });
     });
 
