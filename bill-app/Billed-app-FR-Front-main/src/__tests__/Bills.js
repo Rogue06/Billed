@@ -210,7 +210,7 @@ describe("Given I am connected as an employee", () => {
         });
       });
     });
-    // Test du bouton disconnect
+    // Test du bouton disconnect dans le layout vertical
     describe("Given I am connected", () => {
       describe("When I click on disconnect button", () => {
         test("Then, I should be sent to login page", () => {
@@ -227,15 +227,10 @@ describe("Given I am connected as an employee", () => {
             })
           );
 
-          // On crée le DOM avec le layout vertical qui contient le bouton de déconnexion
+          // Création du DOM avec le layout vertical qui contient le bouton de déconnexion
           document.body.innerHTML = `
             <div id="root">
               ${BillsUI({ data: bills })}
-              <div class="vertical-navbar" style="height: 120vh;">
-                <div id="layout-disconnect" data-testid="layout-disconnect">
-                  <svg></svg>
-                </div>
-              </div>
             </div>
           `;
 
