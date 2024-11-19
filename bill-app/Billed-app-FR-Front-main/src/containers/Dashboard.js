@@ -140,8 +140,6 @@ export default class {
   };
 
   handleShowTickets(e, bills, index) {
-    // premier "if" suprimmé et "this.index" remplacé par "index"
-
     const arrowIcon = $(`#arrow-icon${index}`);
     const billsContainer = $(`#status-bills-container${index}`);
 

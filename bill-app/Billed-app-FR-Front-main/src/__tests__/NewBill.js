@@ -28,7 +28,7 @@ describe("Given I am connected as an employee", () => {
 
     // Test pour la sélection d'un fichier
     describe("When I upload a file", () => {
-      // Test pour un fichier valide
+      // Test Scénario 7 : Téléchargement fichier valide
       test("Then the file handler should accept jpg/jpeg/png files", async () => {
         // Simulation du localStorage
         Object.defineProperty(window, "localStorage", {
@@ -68,7 +68,7 @@ describe("Given I am connected as an employee", () => {
         expect(fileInput.files[0]).toEqual(validFile);
       });
 
-      // Test pour un fichier invalide
+      // Test Scénario 8 : Téléchargement fichier invalide
       test("Then the file handler should show error message for invalid file type", async () => {
         // Simulation du localStorage
         Object.defineProperty(window, "localStorage", {
@@ -118,7 +118,7 @@ describe("Given I am connected as an employee", () => {
       });
     });
 
-    // Test pour la soumission du formulaire
+    // Test Scénario 9 : Soumission nouvelle facture
     describe("When I submit the form with valid data", () => {
       test("Then a new bill should be created", async () => {
         // Simulation du localStorage
@@ -273,6 +273,7 @@ describe("Given I am a user connected as Employee", () => {
         document.body.innerHTML = NewBillUI();
       });
 
+      // Test Scénario 10 : Erreur 404
       test("Then it fails with 404 message error", async () => {
         const newBill = new NewBill({
           document,
@@ -302,6 +303,7 @@ describe("Given I am a user connected as Employee", () => {
         expect(message).toBeTruthy();
       });
 
+      // Test Scénario 11 : Erreur 500
       test("Then it fails with 500 message error", async () => {
         const newBill = new NewBill({
           document,

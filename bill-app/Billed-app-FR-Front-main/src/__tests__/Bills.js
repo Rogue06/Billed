@@ -16,7 +16,7 @@ import Logout from "../containers/Logout.js";
 import DashboardUI from "../views/DashboardUI.js";
 
 jest.mock("../app/store", () => mockStore);
-
+// Test Scénario 4 de la page des factures (connecté)
 describe("Given I am connected as an employee", () => {
   describe("When I am on Bills Page", () => {
     test("Then bill icon in vertical layout should be highlighted", async () => {
@@ -38,7 +38,7 @@ describe("Given I am connected as an employee", () => {
       const windowIcon = screen.getByTestId("icon-window");
       expect(windowIcon).toHaveClass("active-icon"); // Ajout d'un expect
     });
-
+    // Test Scénario 5 : Les factures sont triées par date de création
     test("Then bills should be ordered from earliest to latest", () => {
       document.body.innerHTML = BillsUI({ data: bills });
       const dates = screen
@@ -51,7 +51,7 @@ describe("Given I am connected as an employee", () => {
       expect(dates).toEqual(datesSorted);
     });
 
-    // Vérifie que le clic sur le bouton "Nouvelle facture" navigue vers la page "Nouvelle facture"
+    // Test Scénario 6 : Clic sur le bouton New Bill
     test("Then clicking on New Bill button should navigate to NewBill page", () => {
       const onNavigate = (pathname) => {
         document.body.innerHTML = ROUTES({ pathname });
@@ -210,7 +210,7 @@ describe("Given I am connected as an employee", () => {
         });
       });
     });
-    // Test du bouton disconnect dans le layout vertical
+    // Test Scénario 12 : Deconnexion avec le bouton dans le Layout Vertical
     describe("Given I am connected", () => {
       describe("When I click on disconnect button", () => {
         test("Then, I should be sent to login page", () => {
